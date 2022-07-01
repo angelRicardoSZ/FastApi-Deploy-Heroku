@@ -1,6 +1,6 @@
 #Python
 from typing import Optional
-
+from enum import Enum
 #pydantic
 from pydantic import BaseModel
 from pydantic import Field
@@ -11,6 +11,13 @@ from fastapi import Body, Query, Path
 
 
 app = FastAPI()
+class HairColor(Enum):
+    white = "white"
+    brown = "brown"
+    black = "black"
+    blonde = "blonde"
+    red = "red"
+    
 
 
 # Models
@@ -38,11 +45,25 @@ class Location(BaseModel):
 
 
 class Person(BaseModel):
-    first_name: str 
-    last_name: str 
-    age: int 
-    hair_color: Optional[str] = None
-    is_married: Optional[bool] = None
+    first_name: str =Field(
+        ...,
+        min_length=1,
+        max_length=50
+    )
+    last_name: str =  Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Zefe"
+        )
+    age: int = Field(
+        ...,
+        gt=0,
+        le=115,
+        example=25
+    )
+    hair_color: Optional[HairColor] = Field(default=None,example="black")
+    is_married: Optional[bool] = Field(default = None,example=False)
 
 @app.get("/")
 def home():
