@@ -3,6 +3,7 @@ from typing import Optional
 
 #pydantic
 from pydantic import BaseModel
+from pydantic import Field
 
 # fastapi
 from fastapi import FastAPI
@@ -13,6 +14,29 @@ app = FastAPI()
 
 
 # Models
+class Location(BaseModel):
+    city: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Puebla"
+        )
+    state: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Puebla"
+        )
+    country: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="México"
+        )
+
+
+
+
 class Person(BaseModel):
     first_name: str 
     last_name: str 
@@ -74,3 +98,26 @@ def show_person(
     #         detail="¡This person doesn´t exist!"    
     #     )
     return {person_id: "It exists!"}
+
+
+# Validaciones: Request Body
+
+@app.put(
+    path="/person/{person_id}",
+    # status_code=status.HTTP_201_CREATED,
+    tags=["Persons"]
+    )
+def update_person(
+    person_id: int = Path(
+        ...,
+        title="PERSON_ID",
+        desciption="This is the person ID",
+        gt=0,
+        example=40        
+    ),
+    person: Person = Body(...),
+    location: Location = Body(...)
+):
+    results = person.dict()
+    results.update(location.dict())
+    return results
